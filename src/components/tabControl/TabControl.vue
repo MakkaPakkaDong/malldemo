@@ -14,6 +14,7 @@ export default {
 	props: {
 		titles: {
 			type: Array,
+			// 当你的默认值是一个对象或者数组时必须写成函数
 			default() {
 				return []
 			}
@@ -27,12 +28,13 @@ export default {
 	methods: {
 		itemClick(index) {
 			this.currentIndex = index;
+			this.$emit('tabClick', index)
 		}
 	}
 }
 </script>
 
-<style>
+<style scoped>
 .tab-control {
 	display: flex;
 	text-align: center;
