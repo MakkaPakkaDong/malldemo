@@ -18,7 +18,7 @@
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
 				ref="tabControl2"
-				:class="{fixed: isTabFixed}"
+				
       />
       <goods-list :goods="showGoods" />
     </scroll>
@@ -35,10 +35,10 @@ import NavBar from "components/common/navbar/NavBar";
 import TabControl from "components/tabControl/TabControl";
 import GoodsList from "components/content/goods/GoodsList";
 import Scroll from "components/common/scroll/Scroll";
-import BackTop from "components/content/backTop/BackTop";
+// import BackTop from "components/content/backTop/BackTop";
 
 import { getHomeMultidata, getHomeGoods } from "network/home";
-import {debounce} from "common/utils"
+import {itemListenerMixin, backTopMixin} from 'common/mixin'
 
 export default {
   name: "Home",
@@ -50,8 +50,9 @@ export default {
     TabControl,
     GoodsList,
     Scroll,
-    BackTop,
-  },
+    // BackTop,
+	},
+	mixins: [itemListenerMixin, backTopMixin],
   data() {
     return {
       // result: null
@@ -63,7 +64,7 @@ export default {
         sell: { page: 0, list: [] },
       },
 			currentType: "pop",
-			isShowBackTop: false,
+			// isShowBackTop: false,
 			topOffsetTop: 0,
 			isTabFixed: false,
 			saveY: 0
@@ -72,18 +73,18 @@ export default {
   computed: {
     showGoods() {
       return this.goods[this.currentType].list;
-    },
-	},
-	destroyed() {
-		console.log('home destroyed');
-	},
-	activated() {
-		// this.$refs.scroll.scrollTo(0, this.saveY, 0)
-		this.$refs.scroll.scrollTo(0, this.saveY)
-		this.$refs.scroll.refresh()
-	},
-	deactivated() {
-		this.saveY = this.$refs.scroll.getScrollY()
+		},
+		activated() {
+			// this.$refs.scroll.scrollTo(0, this.saveY, 0)
+			this.$refs.scroll.scrollTo(0, this.saveY)
+			this.$refs.scroll.refresh()
+		},
+		deactivated() {
+			this.saveY = this.$refs.scroll.getScrollY()
+
+			// 取消全局事件的监听
+			this.$bus.$off('itemImgLoad', this.itemImgListener)
+		},
 	},
   created() {
     // 1.请求多个数据,调用methods中的getHomeMultidataMethods
@@ -94,17 +95,21 @@ export default {
 		this.getHomeGoodsMethods("sell");
 	},
 	mounted() {
-		const refresh = debounce(this.$refs.scroll.refresh, 200)
+		// const refresh = debounce(this.$refs.scroll.refresh, 200)
 		// 1. 监听item中图片加载完成
-		this.$bus.$on('itemImageLoad', () => {
-			// console.log('------');
-			// this.$refs.scroll.refresh()
-			refresh()
-		})
+		// this.$bus.$on('itemImageLoad', () => {
+		// 	refresh()
+		// })
 		// 2.获取tabControl的offsettop
 		// 组件没有offsettop属性
 		// 所有组件都有一个属性$el:用于获取组件中的元素
 		// console.log(this.$refs.tabControl.$el.offsetTop);
+		
+		// 对监听的事件进行保存
+		// this.itemImgListener = () => {
+		// 	refresh(20, 30, 'abc')
+		// }
+		// this.$bus.$on('itemImageLoad', this.itemImgListener)
 	},
   methods: {
 		// 事件监听相关方法
@@ -116,7 +121,7 @@ export default {
         case 1:
           this.currentType = "new";
           break;
-        case 1:
+        case 2:
           this.currentType = "sell";
           break;
 			}
@@ -137,7 +142,8 @@ export default {
 		contentScroll(position) {
 			// console.log(position);
 			// 1.判断BackTop是否显示
-			this.isShowBackTop = (-position.y) > 1000
+			// this.isShowBackTop = (-position.y) > 1000
+			this.listenShowBackTop(position)
 			// 2.决定tabControl是否吸顶（position: fixed）
 			this.isTabFixed = (-position.y) > this.tabOffsetTop
 		},

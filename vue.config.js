@@ -1,5 +1,3 @@
-const { useCssModule } = require("vue");
-
 module.exports = {
 	configureWebpack: {
 		resolve: {

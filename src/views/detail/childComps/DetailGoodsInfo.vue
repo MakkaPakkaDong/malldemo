@@ -35,7 +35,6 @@ export default {
   },
   methods: {
     imgLoad() {
-			// 判断所有的图片都加载完成，进行一次回调
       if (++this.counter === this.imagesLength) {
         this.$emit("imageLoad");
       }

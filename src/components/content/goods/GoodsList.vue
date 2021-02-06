@@ -1,8 +1,13 @@
 <template>
   <div class="goods">
     <!-- {{goods}} -->
-    <goods-list-item v-for="item in goods" :goods-item="item" />
-  </div>
+    <!-- <goods-list-item v-for="item in goods" :goods-item="item" /> -->
+		<goods-list-item
+      v-for="item in goods"
+      :key="item.id"
+      :goods-item="item"
+    ></goods-list-item>
+	</div>
 </template>
 
 <script>
